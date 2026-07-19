@@ -1,0 +1,87 @@
+version: "3.9"
+
+services:
+  lb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lb
+    ports:
+      - "8080:8080"
+    command: ["--config", "configs/config.docker.json", "--log-level", "info"]
+    depends_on:
+      - backend1
+      - backend2
+      - backend3
+    networks:
+      - lb-network
+    restart: unless-stopped
+
+  backend1:
+    build:
+      context: .
+      dockerfile: demo/echobackend/Dockerfile
+    container_name: backend1
+    command: ["--port", "9000", "--id", "backend1"]
+    networks:
+      - lb-network
+    restart: unless-stopped
+
+  backend2:
+    build:
+      context: .
+      dockerfile: demo/echobackend/Dockerfile
+    container_name: backend2
+    command: ["--port", "9000", "--id", "backend2"]
+    networks:
+      - lb-network
+    restart: unless-stopped
+
+  backend3:
+    build:
+      context: .
+      dockerfile: demo/echobackend/Dockerfile
+    container_name: backend3
+    command: ["--port", "9000", "--id", "backend3"]
+    networks:
+      - lb-network
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    container_name: prometheus
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - lb-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+    volumes:
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - lb-network
+    restart: unless-stopped
+
+networks:
+  lb-network:
+    driver: bridge
+
+volumes:
+  prometheus-data:
+  grafana-data:

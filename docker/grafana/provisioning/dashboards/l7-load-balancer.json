@@ -1,0 +1,128 @@
+{
+  "title": "L7 Load Balancer",
+  "uid": "l7-load-balancer",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Request Rate by Backend",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum by (backend) (rate(lb_requests_total[1m]))",
+          "legendFormat": "{{backend}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Request Rate by Status",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum by (status) (rate(lb_requests_total[1m]))",
+          "legendFormat": "{{status}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Backend Health (1 = up, 0 = down)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "fieldConfig": { "defaults": { "min": 0, "max": 1 }, "overrides": [] },
+      "targets": [
+        {
+          "expr": "lb_backend_up",
+          "legendFormat": "{{backend}}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Active Connections per Backend",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "lb_backend_active_connections",
+          "legendFormat": "{{backend}}"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Circuit Breaker State (0=closed, 1=half_open, 2=open)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "fieldConfig": { "defaults": { "min": 0, "max": 2 }, "overrides": [] },
+      "targets": [
+        {
+          "expr": "lb_circuit_breaker_state",
+          "legendFormat": "{{backend}}"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "p50 / p95 / p99 Latency",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(lb_request_duration_seconds_bucket[1m])))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(lb_request_duration_seconds_bucket[1m])))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(lb_request_duration_seconds_bucket[1m])))",
+          "legendFormat": "p99"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Retry Rate by Backend",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 24 },
+      "targets": [
+        {
+          "expr": "sum by (backend) (rate(lb_retries_total[1m]))",
+          "legendFormat": "{{backend}}"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Rate Limit Rejections / sec",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 24 },
+      "targets": [
+        {
+          "expr": "rate(lb_rate_limit_rejections_total[1m])",
+          "legendFormat": "rejections/sec"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Total Registered Backends",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 24 },
+      "targets": [
+        {
+          "expr": "lb_backends_total",
+          "legendFormat": "backends"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "listen_host": "0.0.0.0",
+  "listen_port": 8080,
+  "algorithm": "power_of_two_choices",
+  "client_timeout_seconds": 10,
+  "backends": [
+    { "url": "http://backend1:9000", "weight": 1 },
+    { "url": "http://backend2:9000", "weight": 1 },
+    { "url": "http://backend3:9000", "weight": 1 }
+  ],
+  "health_check": {
+    "enabled": true,
+    "path": "/",
+    "interval_seconds": 5,
+    "timeout_seconds": 2,
+    "unhealthy_threshold": 3,
+    "healthy_threshold": 2
+  },
+  "passive_health": {
+    "failure_threshold": 3
+  },
+  "circuit_breaker": {
+    "failure_threshold": 5,
+    "recovery_timeout_seconds": 30
+  },
+  "retry": {
+    "max_retries": 2,
+    "base_delay_seconds": 0.1,
+    "max_delay_seconds": 2.0
+  },
+  "rate_limit": {
+    "enabled": true,
+    "requests_per_second": 200,
+    "burst": 400
+  },
+  "sticky_sessions": {
+    "enabled": false
+  },
+  "metrics": {
+    "enabled": true,
+    "path": "/metrics"
+  },
+  "admin": {
+    "enabled": true,
+    "path_prefix": "/admin"
+  }
+}
