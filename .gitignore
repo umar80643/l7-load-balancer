@@ -34,4 +34,4 @@ htmlcov/
 
 # Build artifacts
 dist/
-build/
+build/.github/workflows/
